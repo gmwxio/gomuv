@@ -17,11 +17,13 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	tasks := Tasks{
-		{"1", "client server sync"},
-		{"2", "Implement Model Update View architecture"},
-		{"3", "Tree diff"},
+		[]Task{
+			{"1", "client server sync"},
+			{"2", "Implement Model Update View architecture"},
+			{"3", "Tree diff"},
+		},
 	}
-	uimodel := make(map[string]interface{})
+	uimodel := make([]map[string]interface{}, 0)
 	er := json.Unmarshal([]byte(uimodeljson), &uimodel)
 	if er != nil {
 		fmt.Printf("decode error %v\n``%v``\n", er, string(uimodeljson))
@@ -36,14 +38,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		UiElems map[string]interface{}
+		UiElems []map[string]interface{}
 	}{
 		UiElems: uimodel,
 	}
 	templ.Lookup("page").Execute(w, data)
 }
 
-type Tasks []Task
+type Tasks struct {
+	MyTasks []Task
+}
 
 type Task struct {
 	Id   string
@@ -55,15 +59,13 @@ func (dm *Tasks) GetBinding(path ...string) (interface{}, error) {
 }
 
 const uimodeljson = `
-{
-	"UiElems" : [
-		{
-			"Template": "Tasks",
-			"Bind": "MyTasks",
-			"Title" : "My Tasks"
-		}
-	]
-}
+[
+	{
+		"Template": "Tasks",
+		"Bind": "MyTasks",
+		"Title" : "My Tasks"
+	}
+]
 `
 
 const gohtml = `
@@ -83,10 +85,8 @@ const gohtml = `
 </style>
 <body>
 	<div>
-	{{.}}
 	{{range .UiElems}}
-	{{.}}
-	{{CallTemplate .Template .}}
+		{{CallTemplate .Template .}}
 	{{end}}
 	</div>
 </body>

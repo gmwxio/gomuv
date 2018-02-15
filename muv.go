@@ -92,7 +92,7 @@ func GetBinding(dm DataModel, path ...string) (interface{}, error) {
 		val = val.FieldByName(path[0])
 	}
 
-	for i := 0; i < len(path); i++ {
+	for i := 1; i < len(path); i++ {
 		switch val.Kind() {
 		case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
 			if val.IsNil() {
